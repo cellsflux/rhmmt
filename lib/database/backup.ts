@@ -2,27 +2,7 @@ import { app } from 'electron'
 import fs from 'fs'
 import { join, dirname } from 'path'
 
-// Définition des types de retour
-interface BackupResult {
-  success: boolean
-  error?: string
-  backupPath?: string
-}
-
-interface RestoreResult {
-  success: boolean
-  error?: string
-}
-
-interface VerifyResult {
-  success: boolean
-  error?: string
-  exists?: boolean
-  size?: number
-  modified?: Date
-}
-
-export function backupSQLiteData(): BackupResult {
+export function backupSQLiteData() {
   try {
     const userDataPath = app.getPath('userData')
     const sqliteFiles = ['app.db']
@@ -41,8 +21,6 @@ export function backupSQLiteData(): BackupResult {
       fs.mkdirSync(timestampedBackupDir, { recursive: true })
     }
 
-    let backupCreated = false
-
     sqliteFiles.forEach((file) => {
       const filePath = join(userDataPath, file)
       if (fs.existsSync(filePath)) {
@@ -54,46 +32,29 @@ export function backupSQLiteData(): BackupResult {
         const timestampedBackupPath = join(timestampedBackupDir, file)
         fs.copyFileSync(filePath, timestampedBackupPath)
 
-        console.log(`✅ Backup created: ${file}`)
-        backupCreated = true
+        console.log(`✅ Sauvegarde de ${file}`)
       }
     })
 
     // Nettoyer les anciennes sauvegardes (garder les 5 plus récentes)
     cleanOldBackups(backupDir)
-
-    if (!backupCreated) {
-      return {
-        success: false,
-        error: 'No database files found to backup',
-      }
-    }
-
-    return {
-      success: true,
-      backupPath: timestampedBackupDir,
-    }
-  } catch (err: any) {
-    console.error('Backup error:', err)
-    return {
-      success: false,
-      error: err.message,
-    }
+  } catch (err) {
+    console.error('Erreur backup SQLite:', err)
+    throw err
   }
 }
 
-export function restoreSQLiteData(): RestoreResult {
+export function restoreSQLiteData() {
   try {
     const userDataPath = app.getPath('userData')
     const sqliteFiles = ['app.db']
-    let restored = false
 
     sqliteFiles.forEach((file) => {
       const backupPath = join(userDataPath, `${file}.backup`)
       const filePath = join(userDataPath, file)
 
       if (fs.existsSync(backupPath)) {
-        // Sauvegarder l'état actuel avant restauration (sauvegarde d'urgence)
+        // Sauvegarder l'état actuel avant restauration
         if (fs.existsSync(filePath)) {
           const emergencyBackup = join(userDataPath, `${file}.emergency`)
           fs.copyFileSync(filePath, emergencyBackup)
@@ -101,60 +62,17 @@ export function restoreSQLiteData(): RestoreResult {
 
         // Restaurer depuis la sauvegarde
         fs.copyFileSync(backupPath, filePath)
-        console.log(`♻️ Database restored: ${file}`)
-        restored = true
+        console.log(`♻️ Restauration de ${file}`)
       }
     })
-
-    if (!restored) {
-      return {
-        success: false,
-        error: 'No backup files found to restore',
-      }
-    }
-
-    return { success: true }
-  } catch (err: any) {
-    console.error('Restore error:', err)
-    return {
-      success: false,
-      error: err.message,
-    }
-  }
-}
-
-export function verifyBackup(): VerifyResult {
-  try {
-    const userDataPath = app.getPath('userData')
-    const backupPath = join(userDataPath, 'app.db.backup')
-    const exists = fs.existsSync(backupPath)
-
-    if (exists) {
-      const stats = fs.statSync(backupPath)
-      return {
-        success: true,
-        exists: true,
-        size: stats.size,
-        modified: stats.mtime,
-      }
-    }
-
-    return {
-      success: true,
-      exists: false,
-    }
-  } catch (err: any) {
-    return {
-      success: false,
-      error: err.message,
-    }
+  } catch (err) {
+    console.error('Erreur restauration SQLite:', err)
+    throw err
   }
 }
 
 function cleanOldBackups(backupDir: string) {
   try {
-    if (!fs.existsSync(backupDir)) return
-
     const backups = fs
       .readdirSync(backupDir)
       .filter((item) => {
@@ -169,10 +87,10 @@ function cleanOldBackups(backupDir: string) {
       backups.slice(5).forEach((oldBackup) => {
         const oldBackupPath = join(backupDir, oldBackup)
         fs.rmSync(oldBackupPath, { recursive: true, force: true })
-        console.log(`🗑️ Cleaned old backup: ${oldBackup}`)
+        console.log(`🗑️ Nettoyage ancienne sauvegarde: ${oldBackup}`)
       })
     }
   } catch (err) {
-    console.error('Error cleaning backups:', err)
+    console.error('Erreur nettoyage sauvegardes:', err)
   }
 }

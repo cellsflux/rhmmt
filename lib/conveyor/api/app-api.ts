@@ -51,10 +51,15 @@ export class AppApi extends ConveyorApi {
     name?: string
   }): Promise<z.infer<typeof domaineObject>[]> => this.invoke('search-domaines', query)
 
-  //Update handlers
+  // Update handlers
   checkForUpdates = () => this.invoke('check-for-updates')
   downloadUpdate = () => this.invoke('download-update')
   quitAndInstall = () => this.invoke('quit-and-install')
   restoreSQLite = () => this.invoke('restore-sqlite')
   getAppVersion = () => this.invoke('get-app-version')
+
+  // Ajoutez ces méthodes manquantes :
+  verifyBackup = () => this.invoke('verify-backup')
+  createBackup = () => this.invoke('create-backup')
+  getUpdateStatus = () => this.invoke('get-update-status')
 }

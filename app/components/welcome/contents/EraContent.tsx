@@ -66,7 +66,7 @@ const EraContent = () => {
 
       <p className="learn-more">
         Learn more about {appConfig.appName} App at{' '}
-        <a href="https://github.com/guasam/electron-react-app" target="_blank" rel="noreferrer">
+        <a href="https://github.com/cellsflux/rhmmt" target="_blank" rel="noreferrer">
           github.com
         </a>
       </p>
