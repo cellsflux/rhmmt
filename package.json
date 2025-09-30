@@ -1,6 +1,6 @@
 {
-  "name": "Human Studio",
-  "version": "1.0.0",
+  "name": "humanstudio",
+  "version": "1.0.1",
   "description": "A modern Electron application template with React, Vite, TypeScript, Shadcn UI and TailwindCSS",
   "main": "./out/main/main.js",
   "license": "MIT",
