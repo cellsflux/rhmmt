@@ -1,0 +1,68 @@
+appId: com.cellsflux.humainstudio
+productName: Humains Studio
+
+directories:
+  buildResources: resources/build
+
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+
+asarUnpack:
+  - resources/**
+
+# Configuration de publication pour les mises à jour
+publish:
+  provider: github
+  owner: cellsflux
+  repo: rhmmt
+
+win:
+  executableName: Humains Studio
+  icon: resources/build/icon.ico
+  fileAssociations:
+    - ext: era
+      name: Fichier ERA
+      description: Fichier personnalisé pour Humains Studio
+      role: Editor
+      icon: resources/build/hsfile.ico
+
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+
+mac:
+  icon: resources/build/icon.icns
+  entitlementsInherit: resources/build/entitlements.mac.plist
+  extendInfo:
+    NSCameraUsageDescription: Application requests access to the device's camera.
+    NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  fileAssociations:
+    - ext: era
+      name: Fichier ERA
+      role: Editor
+      icon: resources/build/hsfile.icns
+
+dmg:
+  artifactName: ${name}-${version}.${ext}
+
+linux:
+  target:
+    - AppImage
+    - snap
+    - deb
+  maintainer: electronjs.org
+  category: Utility
+  fileAssociations:
+    - ext: era
+      name: Fichier ERA
+      mimeType: application/x-era
+      icon: resources/build/hsfile.png
